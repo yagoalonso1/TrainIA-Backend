@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -42,5 +43,42 @@ class AuthController extends Controller
                 'token_type' => 'Bearer'
             ]
         ], 201);
+    }
+
+    /**
+     * Login user
+     */
+    public function login(Request $request)
+    {
+        // Buscar el usuario por email
+        $user = User::where('email', $request->email)->first();
+
+        // Verificar si el usuario existe y la contraseña es correcta
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Credenciales incorrectas'
+            ], 401);
+        }
+
+        // Crear token de acceso con Sanctum
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Inicio de sesión exitoso',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_id' => $user->avatar_id,
+                    'role' => $user->role,
+                    'subscription_status' => $user->subscription_status,
+                ],
+                'token' => $token,
+                'token_type' => 'Bearer'
+            ]
+        ], 200);
     }
 }

@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Middleware\BaseValidator;
 
-class ValidateRegister
+class ValidateLogin
 {
     /**
      * Handle an incoming request.
@@ -16,23 +17,15 @@ class ValidateRegister
     public function handle(Request $request, Closure $next): Response
     {
         $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'avatar_id' => 'nullable|exists:avatars,id',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:6',
         ];
 
         $messages = [
-            'name.required' => 'El nombre es obligatorio',
-            'name.string' => 'El nombre debe ser una cadena de texto',
-            'name.max' => 'El nombre no puede exceder 255 caracteres',
             'email.required' => 'El email es obligatorio',
             'email.email' => 'El email debe tener un formato válido',
-            'email.unique' => 'Este email ya está registrado',
             'password.required' => 'La contraseña es obligatoria',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
-            'password.confirmed' => 'La confirmación de contraseña no coincide',
-            'avatar_id.exists' => 'El avatar seleccionado no existe',
+            'password.min' => 'La contraseña debe tener al menos 6 caracteres',
         ];
 
         $validationError = BaseValidator::validate($request, $rules, $messages);
