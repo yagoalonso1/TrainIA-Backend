@@ -19,7 +19,6 @@ class ValidateRegister
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'avatar_id' => 'nullable|exists:avatars,id',
         ];
 
         $messages = [
@@ -32,7 +31,6 @@ class ValidateRegister
             'password.required' => 'La contraseña es obligatoria',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres',
             'password.confirmed' => 'La confirmación de contraseña no coincide',
-            'avatar_id.exists' => 'El avatar seleccionado no existe',
         ];
 
         $validationError = BaseValidator::validate($request, $rules, $messages);

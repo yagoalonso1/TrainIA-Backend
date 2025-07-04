@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('feedback_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('avatar_id')->constrained()->onDelete('cascade');
+            $table->string('avatar_type')->comment('motivational, calm, aggressive, etc.');
             $table->enum('context', ['start', 'motivation', 'correction', 'finish']);
             $table->text('message_text');
             $table->timestamps();

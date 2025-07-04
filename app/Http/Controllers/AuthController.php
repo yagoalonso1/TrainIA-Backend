@@ -19,10 +19,13 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'avatar_id' => $request->avatar_id,
             'role' => 'user', // Por defecto es user
             'subscription_status' => 'free', // Por defecto es free
         ]);
+
+        // Generar y guardar la URL del avatar automáticamente
+        $user->avatar_url = $user->generateAvatarUrl();
+        $user->save();
 
         // Crear token de acceso con Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -35,7 +38,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'avatar_id' => $user->avatar_id,
+                    'avatar_url' => $user->avatar_url,
                     'role' => $user->role,
                     'subscription_status' => $user->subscription_status,
                 ],
@@ -72,7 +75,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'avatar_id' => $user->avatar_id,
+                    'avatar_url' => $user->avatar_url,
                     'role' => $user->role,
                     'subscription_status' => $user->subscription_status,
                 ],
