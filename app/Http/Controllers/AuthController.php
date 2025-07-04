@@ -176,4 +176,26 @@ class AuthController extends Controller
             ]
         ], 200);
     }
+
+    /**
+     * Get current user profile
+     */
+    public function getUser(Request $request)
+    {
+        $user = $request->user();
+        $fileUploadService = new \App\Services\FileUploadService();
+        $currentAvatarUrl = $fileUploadService->getUserAvatarUrl($user);
+        
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at,
+            'avatar_url' => $currentAvatarUrl,
+            'role' => $user->role,
+            'subscription_status' => $user->subscription_status,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ]);
+    }
 }
