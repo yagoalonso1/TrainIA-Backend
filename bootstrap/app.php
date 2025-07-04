@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'validate.register' => \App\Http\Middleware\ValidateRegister::class,
+            'validate.login' => \App\Http\Middleware\ValidateLogin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
