@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar_id',
+        'avatar_url',
         'role',
         'subscription_status',
     ];
@@ -51,10 +51,22 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación con Avatar
+     * Generate avatar URL from user name using uiAvatars
      */
-    public function avatar()
+    public function generateAvatarUrl(): string
     {
-        return $this->belongsTo(Avatar::class);
+        $name = urlencode($this->name);
+        $background = sprintf('%06X', mt_rand(0, 0xFFFFFF)); // Color de fondo aleatorio
+        $color = 'FFFFFF'; // Texto blanco
+        
+        return "https://ui-avatars.com/api/?name={$name}&background={$background}&color={$color}&size=200&rounded=true";
+    }
+
+    /**
+     * Get avatar URL, generate if not exists
+     */
+    public function getAvatarUrlAttribute($value): string
+    {
+        return $value ?: $this->generateAvatarUrl();
     }
 }
