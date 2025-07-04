@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -96,6 +97,83 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesión cerrada exitosamente'
+        ], 200);
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $updated = false;
+        $nameChanged = false;
+
+        // Actualizar nombre si se proporciona
+        if ($request->has('name') && $request->name !== $user->name) {
+            $user->name = $request->name;
+            $nameChanged = true;
+            $updated = true;
+        }
+
+        // Actualizar email si se proporciona
+        if ($request->has('email') && $request->email !== $user->email) {
+            $user->email = $request->email;
+            $updated = true;
+        }
+
+        // Manejar subida de avatar usando el servicio
+        if ($request->hasFile('avatar')) {
+            try {
+                $fileUploadService = new \App\Services\FileUploadService();
+                $fileUpload = $fileUploadService->uploadFile(
+                    $request->file('avatar'),
+                    $user,
+                    'avatar'
+                );
+                
+                $updated = true;
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al subir el avatar: ' . $e->getMessage()
+                ], 422);
+            }
+        } else if ($nameChanged && str_contains($user->avatar_url, 'ui-avatars.com')) {
+            // Si cambió el nombre y tiene avatar generado automáticamente, regenerarlo
+            $user->avatar_url = $user->generateAvatarUrl();
+            $updated = true;
+        }
+
+        if ($updated) {
+            $user->save();
+        }
+
+        // Obtener la URL del avatar actual (subido o generado)
+        $fileUploadService = new \App\Services\FileUploadService();
+        $currentAvatarUrl = $fileUploadService->getUserAvatarUrl($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => $updated ? 'Perfil actualizado exitosamente' : 'No hay cambios que actualizar',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $currentAvatarUrl,
+                    'role' => $user->role,
+                    'subscription_status' => $user->subscription_status,
+                ],
+                'files' => $updated && $request->hasFile('avatar') ? [
+                    'avatar' => [
+                        'id' => $fileUpload->id ?? null,
+                        'original_name' => $fileUpload->original_name ?? null,
+                        'file_size' => $fileUpload->formatted_size ?? null,
+                        'uploaded_at' => $fileUpload->created_at->diffForHumans() ?? null,
+                    ]
+                ] : null,
+            ]
         ], 200);
     }
 }

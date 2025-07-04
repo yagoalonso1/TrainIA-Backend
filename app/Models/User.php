@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -51,22 +52,57 @@ class User extends Authenticatable
     }
 
     /**
-     * Generate avatar URL from user name using uiAvatars
+     * Relación con archivos subidos
+     */
+    public function fileUploads(): HasMany
+    {
+        return $this->hasMany(FileUpload::class);
+    }
+
+    /**
+     * Obtiene archivos activos del usuario
+     */
+    public function activeFiles(): HasMany
+    {
+        return $this->fileUploads()->active();
+    }
+
+    /**
+     * Obtiene el avatar actual del usuario (archivo subido o generado)
+     */
+    public function getCurrentAvatarAttribute(): string
+    {
+        // Primero buscar si tiene un avatar subido
+        $uploadedAvatar = FileUpload::getUserAvatar($this->id);
+        
+        if ($uploadedAvatar) {
+            return $uploadedAvatar->public_url;
+        }
+        
+        // Si no tiene avatar subido, retornar el generado automáticamente
+        return $this->avatar_url ?: $this->generateAvatarUrl();
+    }
+
+    /**
+     * Genera una URL de avatar automático basada en el nombre del usuario
      */
     public function generateAvatarUrl(): string
     {
         $name = urlencode($this->name);
-        $background = sprintf('%06X', mt_rand(0, 0xFFFFFF)); // Color de fondo aleatorio
-        $color = 'FFFFFF'; // Texto blanco
+        $colors = ['FF6B6B', '4ECDC4', 'FFD93D', 'FF8C42', 'C44569', '6C5CE7', 'FD79A8', 'FDCB6E'];
+        $background = $colors[abs(crc32($this->email)) % count($colors)];
         
-        return "https://ui-avatars.com/api/?name={$name}&background={$background}&color={$color}&size=200&rounded=true";
+        return "https://ui-avatars.com/api/?name={$name}&background={$background}&color=FFFFFF&size=200&rounded=true";
     }
 
     /**
-     * Get avatar URL, generate if not exists
+     * Desactiva avatares anteriores cuando se sube uno nuevo
      */
-    public function getAvatarUrlAttribute($value): string
+    public function deactivatePreviousAvatars(): void
     {
-        return $value ?: $this->generateAvatarUrl();
+        $this->fileUploads()
+            ->where('type', 'avatar')
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
     }
 }
