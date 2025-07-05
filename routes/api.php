@@ -27,6 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/update', [AuthController::class, 'updateProfile'])
         ->middleware('validate.update.profile');
         
+    Route::post('/change-password', [AuthController::class, 'changePassword'])
+        ->middleware('validate.change.password');
+        
     // Rutas para gestión de archivos
     Route::prefix('files')->group(function () {
         Route::get('/', [FileController::class, 'index']);

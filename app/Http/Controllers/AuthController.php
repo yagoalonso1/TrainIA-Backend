@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\PasswordResetService;
+use App\Services\PasswordChangeService;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -239,6 +240,45 @@ class AuthController extends Controller
                 $request->email,
                 $request->token,
                 $request->password
+            );
+            
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Change user password
+     */
+    public function changePassword(Request $request)
+    {
+        try {
+            $passwordChangeService = new PasswordChangeService();
+            
+            // Validar fortaleza de la contraseña
+            $strengthValidation = $passwordChangeService->validatePasswordStrength($request->new_password);
+            
+            if (!$strengthValidation['is_valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La nueva contraseña no cumple con los requisitos de seguridad',
+                    'data' => [
+                        'errors' => $strengthValidation['errors'],
+                        'strength' => $strengthValidation['strength'],
+                        'strength_label' => $passwordChangeService->getPasswordStrengthLabel($strengthValidation['strength']),
+                    ]
+                ], 422);
+            }
+
+            // Cambiar la contraseña
+            $result = $passwordChangeService->changePassword(
+                $request->user(),
+                $request->current_password,
+                $request->new_password
             );
             
             return response()->json($result, 200);
