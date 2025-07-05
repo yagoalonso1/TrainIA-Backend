@@ -23,30 +23,33 @@ class PasswordChangeService
             throw new \Exception('La nueva contraseña debe ser diferente a la actual');
         }
 
-        // Verificar que la nueva contraseña no sea una de las últimas 3 contraseñas
-        // (esto requeriría una tabla adicional para historial de contraseñas)
         // Por ahora, solo verificamos que no sea igual a la actual
 
         // Actualizar la contraseña
         $user->password = Hash::make($newPassword);
         $user->save();
 
+        // Revocar todos los tokens del usuario (cerrar todas las sesiones)
+        $user->tokens()->delete();
+
         // Log del cambio de contraseña para auditoría
-        Log::info('Usuario cambió contraseña', [
+        Log::info('Usuario cambió contraseña y se cerraron todas las sesiones', [
             'user_id' => $user->id,
             'user_email' => $user->email,
             'changed_at' => now(),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
+            'sessions_revoked' => true,
         ]);
 
         return [
             'success' => true,
-            'message' => 'Contraseña cambiada exitosamente',
+            'message' => 'Contraseña cambiada exitosamente. Todas las sesiones han sido cerradas por seguridad.',
             'data' => [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'changed_at' => now()->toISOString(),
+                'sessions_revoked' => true,
             ]
         ];
     }
