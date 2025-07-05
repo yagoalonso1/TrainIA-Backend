@@ -12,6 +12,12 @@ Route::post('/register', [AuthController::class, 'register'])
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('validate.login');
 
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->middleware('validate.forgot.password');
+
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+    ->middleware('validate.reset.password');
+
 // Rutas protegidas que requieren autenticación
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'getUser']);

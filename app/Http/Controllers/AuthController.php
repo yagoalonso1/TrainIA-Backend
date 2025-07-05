@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\PasswordResetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -197,5 +198,45 @@ class AuthController extends Controller
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
         ]);
+    }
+
+    /**
+     * Send forgot password request
+     */
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $passwordResetService = new PasswordResetService();
+            $result = $passwordResetService->sendForgotPassword($request->email);
+            
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Reset password with token
+     */
+    public function resetPassword(Request $request)
+    {
+        try {
+            $passwordResetService = new PasswordResetService();
+            $result = $passwordResetService->resetPassword(
+                $request->email,
+                $request->token,
+                $request->password
+            );
+            
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 }
