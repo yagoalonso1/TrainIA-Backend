@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\PasswordResetService;
+use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -28,6 +30,14 @@ class AuthController extends Controller
         // Generar y guardar la URL del avatar automáticamente
         $user->avatar_url = $user->generateAvatarUrl();
         $user->save();
+
+        // Enviar email de bienvenida
+        try {
+            Mail::to($user->email)->send(new WelcomeMail($user));
+        } catch (\Exception $e) {
+            // Si falla el envío, solo loguea el error (no interrumpe el registro)
+            \Log::error('Error enviando email de bienvenida: ' . $e->getMessage());
+        }
 
         // Crear token de acceso con Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
