@@ -1,66 +1,172 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏋️ TrainIA Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API para aplicación de entrenamiento con IA, desarrollado con Laravel 11.
 
-## About Laravel
+## 🚀 Características
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Autenticación completa**: Registro, login, logout con Sanctum
+- **Gestión de perfil**: Actualización de datos y avatar
+- **Sistema de archivos**: Subida y gestión de avatares
+- **Recuperación de contraseña**: Email con contraseña temporal
+- **Cambio de contraseña**: Con validación de fortaleza
+- **Eliminación de cuenta**: Con confirmación y limpieza de datos
+- **Emails automáticos**: Bienvenida y recuperación de contraseña
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+
+- Laravel 11
+- SQLite (desarrollo) / MySQL/PostgreSQL (producción)
+- Composer
 
-## Learning Laravel
+## 🛠️ Instalación
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Clonar el repositorio**
+```bash
+git clone <repository-url>
+cd TrainIA/Backend
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. **Instalar dependencias**
+```bash
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. **Configurar entorno**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Laravel Sponsors
+4. **Configurar base de datos**
+```bash
+# Para SQLite (desarrollo)
+touch database/database.sqlite
+# O configurar MySQL/PostgreSQL en .env
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+php artisan migrate
+```
 
-### Premium Partners
+5. **Configurar storage**
+```bash
+php artisan storage:link
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+6. **Configurar email (opcional)**
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu-email@gmail.com
+MAIL_PASSWORD=tu-app-password
+MAIL_ENCRYPTION=tls
+```
 
-## Contributing
+## 🚀 Uso
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Iniciar servidor
+```bash
+php artisan serve
+```
 
-## Code of Conduct
+### Ejecutar tests
+```bash
+php artisan test
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Limpiar archivos huérfanos
+```bash
+php artisan files:clean-orphans
+```
 
-## Security Vulnerabilities
+## 📚 API Endpoints
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Autenticación
+- `POST /api/register` - Registrar usuario
+- `POST /api/login` - Iniciar sesión
+- `POST /api/logout` - Cerrar sesión (requiere auth)
 
-## License
+### Perfil de Usuario
+- `GET /api/user` - Obtener perfil actual (requiere auth)
+- `POST /api/profile/update` - Actualizar perfil (requiere auth)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Gestión de Contraseñas
+- `POST /api/forgot-password` - Solicitar recuperación
+- `POST /api/reset-password` - Resetear contraseña
+- `POST /api/change-password` - Cambiar contraseña (requiere auth)
+
+### Eliminación de Cuenta
+- `GET /api/account/deletion-warning` - Obtener advertencia (requiere auth)
+- `DELETE /api/account` - Eliminar cuenta (requiere auth)
+
+### Gestión de Archivos
+- `GET /api/files` - Listar archivos del usuario (requiere auth)
+- `DELETE /api/files/{id}` - Eliminar archivo (requiere auth)
+
+## 🔧 Arquitectura
+
+### Estructura de Directorios
+```
+app/
+├── Http/
+│   ├── Controllers/     # Controladores de la API
+│   └── Middleware/      # Validaciones y middleware
+├── Models/              # Modelos Eloquent
+├── Services/            # Lógica de negocio
+└── Mail/               # Templates de email
+```
+
+### Patrones Utilizados
+- **Service Layer**: Lógica de negocio en servicios dedicados
+- **Repository Pattern**: Acceso a datos a través de modelos
+- **Middleware Pattern**: Validaciones específicas por operación
+- **Observer Pattern**: Eventos automáticos (emails)
+
+## 🔒 Seguridad
+
+- Autenticación con Laravel Sanctum
+- Validación robusta de entrada
+- Hash seguro de contraseñas
+- Revocación automática de tokens
+- Logging de auditoría
+- Protección CSRF
+
+## 📝 Logging
+
+El sistema registra automáticamente:
+- Cambios de contraseña
+- Eliminación de cuentas
+- Errores de email
+- Acciones de archivos
+
+Logs disponibles en: `storage/logs/laravel.log`
+
+## 🧪 Testing
+
+```bash
+# Ejecutar todos los tests
+php artisan test
+
+# Ejecutar tests específicos
+php artisan test --filter=AuthTest
+```
+
+## 📦 Despliegue
+
+1. Configurar variables de entorno de producción
+2. Ejecutar `composer install --optimize-autoloader --no-dev`
+3. Ejecutar `php artisan config:cache`
+4. Ejecutar `php artisan route:cache`
+5. Configurar web server (Nginx/Apache)
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
