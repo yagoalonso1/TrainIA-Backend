@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\PasswordResetService;
 use App\Services\PasswordChangeService;
+use App\Services\AccountDeletionService;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -279,6 +280,49 @@ class AuthController extends Controller
                 $request->user(),
                 $request->current_password,
                 $request->new_password
+            );
+            
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Get account deletion warning
+     */
+    public function getDeletionWarning(Request $request)
+    {
+        try {
+            $accountDeletionService = new AccountDeletionService();
+            $warning = $accountDeletionService->getDeletionWarning();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $warning
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener información de eliminación'
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete user account
+     */
+    public function deleteAccount(Request $request)
+    {
+        try {
+            $accountDeletionService = new AccountDeletionService();
+            
+            $result = $accountDeletionService->deleteAccount(
+                $request->user(),
+                $request->password
             );
             
             return response()->json($result, 200);

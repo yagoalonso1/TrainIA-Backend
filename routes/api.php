@@ -30,6 +30,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/change-password', [AuthController::class, 'changePassword'])
         ->middleware('validate.change.password');
         
+    Route::get('/account/deletion-warning', [AuthController::class, 'getDeletionWarning']);
+    
+    Route::delete('/account', [AuthController::class, 'deleteAccount'])
+        ->middleware('validate.delete.account');
+        
     // Rutas para gestión de archivos
     Route::prefix('files')->group(function () {
         Route::get('/', [FileController::class, 'index']);

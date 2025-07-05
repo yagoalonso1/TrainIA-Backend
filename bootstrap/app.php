@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'validate.forgot.password' => \App\Http\Middleware\ValidateForgotPassword::class,
             'validate.reset.password' => \App\Http\Middleware\ValidateResetPassword::class,
             'validate.change.password' => \App\Http\Middleware\ValidateChangePassword::class,
+            'validate.delete.account' => \App\Http\Middleware\ValidateDeleteAccount::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
